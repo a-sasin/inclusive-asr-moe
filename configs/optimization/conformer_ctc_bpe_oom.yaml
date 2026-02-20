@@ -1,0 +1,138 @@
+name: "Conformer-CTC-BPE-OOM"
+
+model:
+  sample_rate: 16000
+  log_prediction: false
+  ctc_reduction: "mean_batch"
+
+  ########################################
+  # Minimal dummy dataset
+  ########################################
+  train_ds:
+    manifest_filepath: null
+    batch_size: 1
+    shuffle: false
+    num_workers: 0
+    use_lhotse: false
+    normalize_text: true
+
+  validation_ds:
+    manifest_filepath: null
+    batch_size: 1
+    shuffle: false
+    num_workers: 0
+    use_lhotse: false
+    normalize_text: true
+
+  ########################################
+  # Tokenizer (needed for vocab size)
+  ########################################
+  tokenizer:
+    dir: /home/nvidia/amelia/tokenizers/granary_en_bpe_4096/tokenizer_spe_bpe_v4096
+    type: bpe
+
+  ########################################
+  # PREPROCESSOR (COPY EXACTLY FROM REAL CONFIG)
+  ########################################
+  preprocessor:
+    _target_: nemo.collections.asr.modules.AudioToMelSpectrogramPreprocessor
+    sample_rate: 16000
+    normalize: "per_feature"
+    window_size: 0.025
+    window_stride: 0.01
+    window: "hann"
+    features: 80
+    n_fft: 512
+    log: true
+    frame_splicing: 1
+    dither: 0.00001
+    pad_to: 0
+    pad_value: 0.0
+
+  ########################################
+  # SPEC AUGMENT
+  ########################################
+  spec_augment:
+    _target_: nemo.collections.asr.modules.SpectrogramAugmentation
+    freq_masks: 2
+    time_masks: 10
+    freq_width: 27
+    time_width: 0.05
+
+  ########################################
+  # ENCODER (IDENTICAL TO TRAINING)
+  ########################################
+  encoder:
+    # _target_: nemo.collections.asr.modules.ConformerEncoder
+    # feat_in: 80
+    # feat_out: -1
+    # n_layers: 18
+    # d_model: 512
+    # sync_max_audio_length: false
+
+    #MoE
+    _target_: nemo.collections.asr.modules.ConformerMoEEncoder
+    feat_in: ${model.preprocessor.features}
+    feat_out: -1
+    n_layers: 18
+    d_model: 512
+    num_experts: 4
+    top_k: 2
+    router_noise: 0.01
+    load_balance_loss_weight: 0.01
+    sync_max_audio_length: false
+
+
+    subsampling: striding
+    subsampling_factor: 4
+    subsampling_conv_channels: -1
+    causal_downsampling: false
+
+    ff_expansion_factor: 4
+    self_attention_model: rel_pos
+    n_heads: 8
+    att_context_size: null
+    att_context_style: regular
+    xscaling: true
+    untie_biases: true
+    pos_emb_max_len: 5000
+
+    conv_kernel_size: 31
+    conv_norm_type: batch_norm
+    conv_context_size: null
+
+    dropout: 0.1
+    dropout_pre_encoder: 0.1
+    dropout_emb: 0.1
+    dropout_att: 0.0
+
+    stochastic_depth_drop_prob: 0.0
+    stochastic_depth_mode: linear
+    stochastic_depth_start_layer: 1
+
+  ########################################
+  # DECODER
+  ########################################
+  decoder:
+    _target_: nemo.collections.asr.modules.ConvASRDecoder
+    feat_in: null
+    num_classes: -1
+    vocabulary: []
+
+  interctc:
+    loss_weights: []
+    apply_at_layers: []
+
+  ########################################
+  # OPTIMIZER (minimal)
+  ########################################
+  optim:
+    name: adamw
+    lr: 1e-7
+    weight_decay: 0.0
+
+trainer:
+  devices: 1
+  accelerator: gpu
+  strategy: auto
+  precision: bf16

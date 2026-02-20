@@ -1,0 +1,250 @@
+# ==============================================================================
+# Conformer-CTC-BPE Large (~121M) – Granary English ASR
+# ==============================================================================
+#
+# Model: Conformer-CTC Large
+#   - d_model: 512
+#   - n_layers: 18
+#   - n_heads: 8
+#   - conv_kernel_size: 31
+#   - ~121M parameters
+#
+# Tokenizer:
+#   - BPE (4096 vocab)
+#   - Trained on Granary English corpus
+#
+# Training Data:
+#   - Granary English manifests (Lhotse YAML configs)
+#   - Dynamic loading via input_cfg
+#
+# Objective:
+#   - CTC loss
+#   - Subword modeling (BPE)
+#
+# ------------------------------------------------------------------------------
+# Training Design
+# ------------------------------------------------------------------------------
+#
+#   • Lhotse dynamic duration-based bucketing
+#       - 30 duration buckets
+#       - Custom bucket_duration_bins + bucket_batch_size schedule
+#       - Optimized for variable-length English utterances
+#
+#   • Iterable dataset (force_iterable_dataset=true)
+#       - Designed for large-scale streaming-style training
+#       - Compatible with DDP
+#
+#   • Optimization
+#       - AdamW
+#       - NoamAnnealing scheduler
+#       - Warmup: 10k steps
+#       - Peak LR: 2.0 (stable for this setup)
+#
+#   • Regularization
+#       - SpecAugment (time_masks=10 for Large variant)
+#       - Dropout=0.1
+#       - Weight decay=1e-3
+#
+#   • Mixed precision
+#       - bf16 for speed + memory efficiency
+#
+#   • Step-based training
+#       - max_steps=100k
+#       - Validation every 5k steps
+#       - Gradient accumulation=4
+#
+# ------------------------------------------------------------------------------
+# Notes
+# ------------------------------------------------------------------------------
+#
+#   This configuration follows the official NeMo Conformer-CTC Large recipe
+#   with:
+#       - Dynamic Lhotse batching instead of static batch_size
+#       - Custom bucket schedule tuned for Granary English
+#       - Stable peak LR=2.0
+#
+#   Intended for large-scale English ASR training with robust duration handling.
+#
+# ==============================================================================
+
+name: "Conformer-CTC-BPE"
+
+model:
+  sample_rate: 16000
+  log_prediction: true
+  ctc_reduction: 'mean_batch'
+
+
+  train_ds:
+    input_cfg: /lp-dev/amelia/inclusive-asr-moe/data/english/train_granary_myst_en.yaml
+    skip_missing_manifest_entries: true
+    # use_distributed_sampler: true
+    num_workers: 8
+    shuffle: true
+    normalize_text: true
+    use_lhotse: true
+    force_iterable_dataset: true
+
+    min_duration: 0.5
+    max_duration: 30.0
+
+    num_buckets: 30
+    use_distributed_sampler: false
+
+    bucket_duration_bins: [0.5,3.42,5.24,6.3,7.12,7.92,8.64,9.31,10.0,10.72,11.52,12.28,13.12,14.0,14.98,16.0,17.12,18.4,19.7,21.16,22.68,24.32,26.0,27.84,29.82,30.0,32.0,35.58,37.38,38.84]
+    bucket_batch_size:    [4158,616,394,324,288,256,234,214,196,174,169,155,138,134,122,112,105,96,88,78,72,66,60,56,52,50,46,40,37,35]
+    use_bucketing: true
+
+
+
+  validation_ds:
+    input_cfg: /lp-dev/amelia/inclusive-asr-moe/data/english/val_granary_myst_en.yaml
+    skip_missing_manifest_entries: true
+    use_lhotse: true
+
+    batch_size: 16
+    min_duration: 0.5
+    max_duration: 40.1
+
+    shuffle: false
+    num_workers: 8
+    normalize_text: true
+
+  test_ds:
+    manifest_filepath: /data/librispeech/test_clean.json
+    sample_rate: 16000
+    batch_size: 8
+    shuffle: false
+    num_workers: 4
+    use_lhotse: false
+    normalize_text: true 
+
+  tokenizer:
+    dir: /home/nvidia/amelia/tokenizers/granary_en_bpe_4096/tokenizer_spe_bpe_v4096
+    type: bpe
+
+  preprocessor:
+    _target_: nemo.collections.asr.modules.AudioToMelSpectrogramPreprocessor
+    sample_rate: ${model.sample_rate}
+    normalize: "per_feature"
+    window_size: 0.025
+    window_stride: 0.01
+    window: "hann"
+    features: 80
+    n_fft: 512
+    log: true
+    frame_splicing: 1
+    dither: 0.00001
+    pad_to: 0
+    pad_value: 0.0
+
+  spec_augment:
+    _target_: nemo.collections.asr.modules.SpectrogramAugmentation
+    freq_masks: 2
+    time_masks: 10
+    freq_width: 27
+    time_width: 0.05
+
+  encoder:
+    _target_: nemo.collections.asr.modules.ConformerEncoder
+    feat_in: ${model.preprocessor.features}
+    feat_out: -1
+    n_layers: 18
+    d_model: 512
+    sync_max_audio_length: false
+
+    subsampling: striding
+    subsampling_factor: 4
+    subsampling_conv_channels: -1
+    causal_downsampling: false
+
+    ff_expansion_factor: 4
+    self_attention_model: rel_pos
+    n_heads: 8
+    att_context_size: null
+    att_context_style: regular
+    xscaling: true
+    untie_biases: true
+    pos_emb_max_len: 5000
+
+    conv_kernel_size: 31
+    conv_norm_type: batch_norm
+    conv_context_size: null
+
+    dropout: 0.1
+    dropout_pre_encoder: 0.1
+    dropout_emb: 0.1
+    dropout_att: 0.0
+
+    stochastic_depth_drop_prob: 0.0
+    stochastic_depth_mode: linear
+    stochastic_depth_start_layer: 1
+
+  decoder:
+    _target_: nemo.collections.asr.modules.ConvASRDecoder
+    feat_in: null
+    num_classes: -1
+    vocabulary: []
+
+  interctc:
+    loss_weights: []
+    apply_at_layers: []
+
+  optim:
+    name: adamw
+    lr: 2.0
+    betas: [0.9, 0.98]
+    weight_decay: 1e-3
+
+    sched:
+      name: NoamAnnealing
+      d_model: ${model.encoder.d_model}
+      warmup_steps: 10000
+      warmup_ratio: null
+      min_lr: 1e-6
+
+trainer:
+  devices: -1
+  num_nodes: 1
+  max_epochs: -1
+  max_steps: 100000
+  use_distributed_sampler: false
+
+  val_check_interval: 5000
+  limit_train_batches: 5000
+  limit_val_batches: 100
+
+  accelerator: auto
+  strategy: ddp
+  accumulate_grad_batches: 4
+  gradient_clip_val: 1.0
+  precision: bf16
+
+  log_every_n_steps: 50
+  enable_progress_bar: True
+  num_sanity_val_steps: 2
+  check_val_every_n_epoch: null
+  sync_batchnorm: true
+  enable_checkpointing: False
+  logger: false
+  benchmark: false
+
+exp_manager:
+  exp_dir: /home/nvidia/amelia/experiments/Conformer
+  name: ${name}
+  create_tensorboard_logger: true
+  create_checkpoint_callback: true
+  checkpoint_callback_params:
+    monitor: "val_wer"
+    mode: "min"
+    save_top_k: 1
+    save_last: true
+    always_save_nemo: True
+
+  resume_if_exists: false
+  resume_ignore_no_checkpoint: false
+
+  create_wandb_logger: false
+  wandb_logger_kwargs:
+    project: null
+    name: null
