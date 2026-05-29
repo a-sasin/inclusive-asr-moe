@@ -1,0 +1,102 @@
+{
+  "experiment": "English Baseline & Fine-Tuning",
+  "adult_test": "/data/librispeech_nemo/test_clean.json",
+  "child_test": "/lp-dev/amelia/data/myst/test.json",
+  "models": [
+    {
+      "name": "Dense Pretrained (LibriSpeech)",
+      "checkpoint": "/lp-dev/amelia/inclusive-asr-moe/experiments/NEW/english/dense/dense_fastconformer_librispeech_2026-04-16_18-03-09/2026-04-16_18-03-22/checkpoints/dense_fastconformer_librispeech_2026-04-16_18-03-09.nemo",
+      "adult": {
+        "dataset": "adult",
+        "num_utterances": 2620,
+        "num_words": 52576,
+        "edit_distance": 1569,
+        "wer": 0.02984251369446135
+      },
+      "child": {
+        "dataset": "child",
+        "num_utterances": 13169,
+        "num_words": 200384,
+        "edit_distance": 54074,
+        "wer": 0.2698518843819866
+      },
+      "relative_bias": 8.04253197786318
+    },
+    {
+      "name": "Dense Fine-tuned (+ LibriSpeech+MySTmix)",
+      "checkpoint": "/lp-dev/amelia/inclusive-asr-moe/experiments/NEW/english_child/dense/dense_fastconformer_child_myst_2026-04-18_20-28-44/2026-04-18_20-28-56/checkpoints/dense_fastconformer_child_myst_2026-04-18_20-28-44.nemo",
+      "adult": {
+        "dataset": "adult",
+        "num_utterances": 2620,
+        "num_words": 52576,
+        "edit_distance": 1547,
+        "wer": 0.029424071819841753
+      },
+      "child": {
+        "dataset": "child",
+        "num_utterances": 13169,
+        "num_words": 200384,
+        "edit_distance": 29349,
+        "wer": 0.1464637895241137
+      },
+      "relative_bias": 3.9776859715706547
+    },
+    {
+      "name": "MoE Pretrained (LibriSpeech)",
+      "checkpoint": "/lp-dev/amelia/inclusive-asr-moe/experiments/NEW/english/moe/moe_fastconformer_librispeech_2026-04-16_18-03-09/2026-04-16_18-03-22/checkpoints/moe_fastconformer_librispeech_2026-04-16_18-03-09.nemo",
+      "adult": {
+        "dataset": "adult",
+        "num_utterances": 2620,
+        "num_words": 52576,
+        "edit_distance": 1347,
+        "wer": 0.025620054777845406
+      },
+      "child": {
+        "dataset": "child",
+        "num_utterances": 13169,
+        "num_words": 200384,
+        "edit_distance": 48416,
+        "wer": 0.2416160970935803
+      },
+      "relative_bias": 8.430740846913197
+    },
+    {
+      "name": "MoE Fine-tuned (+ LibriSpeech+MySTmix)",
+      "checkpoint": "/lp-dev/amelia/inclusive-asr-moe/experiments/NEW/english_child/moe/moe_fastconformer_child_myst_2026-04-19_17-59-51/2026-04-19_18-00-04/checkpoints/moe_fastconformer_child_myst_2026-04-19_17-59-51.nemo",
+      "adult": {
+        "dataset": "adult",
+        "num_utterances": 2620,
+        "num_words": 52576,
+        "edit_distance": 1378,
+        "wer": 0.02620967741935484
+      },
+      "child": {
+        "dataset": "child",
+        "num_utterances": 13169,
+        "num_words": 200384,
+        "edit_distance": 28207,
+        "wer": 0.140764731715107
+      },
+      "relative_bias": 4.3707159177456205
+    },
+    {
+      "name": "MoE Fine-tuned LB off (+ LibriSpeech+MySTmix)",
+      "checkpoint": "/lp-dev/amelia/inclusive-asr-moe/experiments/NEW/english_child/moe/moe_fastconformer_child_myst_2026-04-18_20-28-29/2026-04-18_20-28-43/checkpoints/moe_fastconformer_child_myst_2026-04-18_20-28-29.nemo",
+      "adult": {
+        "dataset": "adult",
+        "num_utterances": 2620,
+        "num_words": 52576,
+        "edit_distance": 1401,
+        "wer": 0.02664713937918442
+      },
+      "child": {
+        "dataset": "child",
+        "num_utterances": 13169,
+        "num_words": 200384,
+        "edit_distance": 28162,
+        "wer": 0.14054016288725646
+      },
+      "relative_bias": 4.274118204111631
+    }
+  ]
+}

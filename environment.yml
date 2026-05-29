@@ -1,0 +1,58 @@
+name: nemo_asr
+channels:
+  - nvidia
+  - pytorch
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.10
+  - pip
+
+  # PyTorch with CUDA 12.1
+  - pytorch::pytorch=2.2
+  - pytorch::torchvision
+  - pytorch::torchaudio
+  - pytorch::pytorch-cuda=12.1
+
+  - pip:
+    # NeMo — install the LOCAL FORK, not the public release.
+    # The local fork at /lp-dev/amelia/NeMo adds ConformerMoEEncoder.
+    # After activating this env, run:
+    #   pip install -e /path/to/your/NeMo
+    # - nemo_toolkit[asr]  ← do NOT install from PyPI; use the local fork
+
+    # Data preprocessing
+    - ray[default]>=2.9
+    - whisper-normalizer>=0.1
+    - soundfile>=0.12
+    - librosa>=0.10
+    - inflect>=7.0
+    - audioread>=3.0
+
+    # Evaluation
+    - editdistance>=0.6
+
+    # Data handling
+    - pandas>=2.0
+    - tqdm>=4.66
+
+    # Experiment tracking
+    - wandb>=0.16
+
+    # CommonVoice preprocessing
+    - datasets>=2.18
+    - python-dotenv>=1.0
+
+    # Analysis & notebooks
+    - jupyter>=1.0
+    - notebook>=7.0
+    - matplotlib>=3.8
+    - seaborn>=0.13
+    - scipy>=1.12
+    - scikit-learn>=1.4
+    - ipywidgets>=8.0
+
+    # Hydra / OmegaConf (pulled by NeMo, listed for clarity)
+    - omegaconf>=2.3
+    - hydra-core>=1.3

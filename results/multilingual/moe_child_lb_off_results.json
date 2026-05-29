@@ -1,0 +1,71 @@
+{
+  "experiment": "Multilingual & Child-Speech Per-Language WER",
+  "checkpoint": "/lp-dev/amelia/inclusive-asr-moe/experiments/NEW/multilingual_child/moe/moe_fastconformer_child_multilingual_2026-05-07_21-03-06/2026-05-07_21-03-19/checkpoints/moe_fastconformer_child_multilingual_2026-05-07_21-03-06.nemo",
+  "text_normalization": "basic_num",
+  "languages": [
+    {
+      "language": "child_en_kidstalc",
+      "dataset": "/lp-dev/amelia/data/kidstalc/cleaned/val.json",
+      "num_utterances": 1546,
+      "num_words": 8966,
+      "edit_distance": 4381,
+      "wer": 0.48862368949364265
+    },
+    {
+      "language": "child_en_myst",
+      "dataset": "/lp-dev/amelia/data/myst/test.json",
+      "num_utterances": 13169,
+      "num_words": 200384,
+      "edit_distance": 29057,
+      "wer": 0.1450065873522836
+    },
+    {
+      "language": "child_nl_jasmin",
+      "dataset": "/lp-dev/amelia/data/jasmin/child/test.json",
+      "num_utterances": 1095,
+      "num_words": 4533,
+      "edit_distance": 931,
+      "wer": 0.20538274873152437
+    },
+    {
+      "language": "child_pl_pavsig",
+      "dataset": "/lp-dev/amelia/data/pavsig/training/new_test_manifest.mono.jsonl",
+      "num_utterances": 506,
+      "num_words": 584,
+      "edit_distance": 561,
+      "wer": 0.9606164383561644
+    },
+    {
+      "language": "de",
+      "dataset": "/data/cv/nemo/de/test.json",
+      "num_utterances": 76677,
+      "num_words": 736007,
+      "edit_distance": 51501,
+      "wer": 0.06997351927359387
+    },
+    {
+      "language": "en_librispeech",
+      "dataset": "/data/librispeech_nemo/test_clean.json",
+      "num_utterances": 2620,
+      "num_words": 52576,
+      "edit_distance": 1772,
+      "wer": 0.03370359099208765
+    },
+    {
+      "language": "nl",
+      "dataset": "/data/cv/nemo/nl/test.json",
+      "num_utterances": 13422,
+      "num_words": 116478,
+      "edit_distance": 3164,
+      "wer": 0.027163927952059616
+    },
+    {
+      "language": "pl",
+      "dataset": "/data/cv/nemo/pl/test.json",
+      "num_utterances": 30035,
+      "num_words": 284973,
+      "edit_distance": 20351,
+      "wer": 0.07141378306014956
+    }
+  ]
+}

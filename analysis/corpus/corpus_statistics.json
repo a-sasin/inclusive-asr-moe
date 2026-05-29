@@ -1,0 +1,84 @@
+{
+  "MyST": {
+    "samples": 65885,
+    "unique_speakers": 566,
+    "gender_dist": null,
+    "age_dist": null,
+    "path": "/lp-dev/amelia/data/myst/filtered_data/train.json"
+  },
+  "JASMIN": {
+    "samples": 13762,
+    "unique_speakers": 119,
+    "gender_dist": null,
+    "age_dist": null,
+    "path": "/lp-dev/amelia/data/jasmin/child/train.json"
+  },
+  "KidsTalc": {
+    "samples": 8519,
+    "unique_speakers": 29,
+    "gender_dist": null,
+    "age_dist": null,
+    "path": "/lp-dev/amelia/data/kidstalc/cleaned/train.json"
+  },
+  "PAVSig": {
+    "samples": 7848,
+    "unique_speakers": 1661,
+    "gender_dist": null,
+    "age_dist": null,
+    "path": "/lp-dev/amelia/data/pavsig/training/new_train_manifest.mono.jsonl"
+  },
+  "CommonVoice PL": {
+    "samples": 99637,
+    "unique_speakers": 2834,
+    "gender_dist": {
+      "male_masculine": 52051,
+      "female_feminine": 15421,
+      "non-binary": 43
+    },
+    "age_dist": {
+      "adult": 99637
+    },
+    "path": "/data/cv/nemo/pl/train.json"
+  },
+  "CommonVoice NL": {
+    "samples": 71836,
+    "unique_speakers": 1539,
+    "gender_dist": {
+      "male_masculine": 39758,
+      "female_feminine": 8301
+    },
+    "age_dist": {
+      "adult": 71836
+    },
+    "path": "/data/cv/nemo/nl/train.json"
+  },
+  "CommonVoice DE": {
+    "samples": 832553,
+    "unique_speakers": 16715,
+    "gender_dist": {
+      "male_masculine": 487913,
+      "female_feminine": 71131,
+      "transgender": 43,
+      "non-binary": 80,
+      "do_not_wish_to_say": 15
+    },
+    "age_dist": {
+      "adult": 832553
+    },
+    "path": "/data/cv/nemo/de/train.json"
+  },
+  "LibriSpeech 360": {
+    "samples": 104014,
+    "unique_speakers": 0,
+    "gender_dist": null,
+    "age_dist": null,
+    "path": "/data/librispeech_nemo/train_clean_360.json"
+  },
+  "LibriSpeech 100": {
+    "samples": 28539,
+    "unique_speakers": 0,
+    "gender_dist": null,
+    "age_dist": null,
+    "path": "/data/librispeech_nemo/train_clean_100.json"
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "experiment": "English Baseline & Fine-Tuning",
+  "adult_test": "/data/librispeech_nemo/test_clean.json",
+  "child_test": "/lp-dev/amelia/data/myst/test.json",
+  "models": [
+    {
+      "name": "Dense Pretrained (Granary)",
+      "checkpoint": "/lp-dev/amelia/experiments/Conformer/GRANARY_conformer_en/FastConformer-CTC-BPE/2026-03-05_15-21-34/checkpoints/FastConformer-CTC-BPE.nemo",
+      "adult": {
+        "dataset": "adult",
+        "num_utterances": 2620,
+        "num_words": 52576,
+        "edit_distance": 2214,
+        "wer": 0.04211046865489958
+      },
+      "child": {
+        "dataset": "child",
+        "num_utterances": 13169,
+        "num_words": 200384,
+        "edit_distance": 37748,
+        "wer": 0.1883783136378154
+      },
+      "ytc": {
+        "dataset": "ytc",
+        "num_utterances": 1000,
+        "num_words": 32909,
+        "edit_distance": 3335,
+        "wer": 0.10134005895043909
+      },
+      "relative_bias": 3.473431896035132
+    },
+    {
+      "name": "Dense Fine-tuned (+ MyST)",
+      "checkpoint": "/lp-dev/amelia/inclusive-asr-moe/experiments/english/finetune/fastconformer_dense_finetune_librispeech_myst_2026-03-31_10-23-48/FastConformer-CTC-BPE-Finetune-MyST-Dense/2026-03-31_10-24-02/checkpoints/FastConformer-CTC-BPE-Finetune-MyST-Dense.nemo",
+      "adult": {
+        "dataset": "adult",
+        "num_utterances": 2620,
+        "num_words": 52576,
+        "edit_distance": 1360,
+        "wer": 0.025867315885575167
+      },
+      "child": {
+        "dataset": "child",
+        "num_utterances": 13169,
+        "num_words": 200384,
+        "edit_distance": 27463,
+        "wer": 0.1370518604279783
+      },
+      "ytc": {
+        "dataset": "ytc",
+        "num_utterances": 1000,
+        "num_words": 32909,
+        "edit_distance": 6242,
+        "wer": 0.1896745571120362
+      },
+      "relative_bias": 4.298263686662784
+    },
+    {
+      "name": "MoE Pretrained (Granary)",
+      "checkpoint": "/lp-dev/amelia/experiments/MoE/GRANARY_moe_fast_conformer_en/FastConformer-CTC-BPE/2026-03-18_11-42-22/checkpoints/FastConformer-CTC-BPE.nemo",
+      "adult": {
+        "dataset": "adult",
+        "num_utterances": 2620,
+        "num_words": 52576,
+        "edit_distance": 2392,
+        "wer": 0.04549604382227632
+      },
+      "child": {
+        "dataset": "child",
+        "num_utterances": 13169,
+        "num_words": 200384,
+        "edit_distance": 38834,
+        "wer": 0.19379790801660812
+      },
+      "ytc": {
+        "dataset": "ytc",
+        "num_utterances": 1000,
+        "num_words": 32909,
+        "edit_distance": 3622,
+        "wer": 0.11006107751678872
+      },
+      "relative_bias": 3.2596650551342763
+    },
+    {
+      "name": "MoE Fine-tuned (+ MyST)",
+      "checkpoint": "/lp-dev/amelia/inclusive-asr-moe/experiments/english/finetune/fastconformer_moe_finetune_librispeech_myst_2026-03-29_14-05-37/FastConformer-MoE-CTC-BPE-Finetune-MyST/2026-03-29_14-05-51/checkpoints/FastConformer-MoE-CTC-BPE-Finetune-MyST.nemo",
+      "adult": {
+        "dataset": "adult",
+        "num_utterances": 2620,
+        "num_words": 52576,
+        "edit_distance": 1769,
+        "wer": 0.0336465307364577
+      },
+      "child": {
+        "dataset": "child",
+        "num_utterances": 13169,
+        "num_words": 200384,
+        "edit_distance": 27891,
+        "wer": 0.13918775950175663
+      },
+      "ytc": {
+        "dataset": "ytc",
+        "num_utterances": 1000,
+        "num_words": 32909,
+        "edit_distance": 6946,
+        "wer": 0.21106688140022486
+      },
+      "relative_bias": 3.1367640721109984
+    }
+  ]
+}

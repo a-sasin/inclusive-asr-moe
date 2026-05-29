@@ -207,5 +207,26 @@ marimo/_lsp/
 __marimo__/
 
 
+# Project data (stored externally on training server)
 /data/*
 /tokenizers/*
+/baseline_weights/*
+/final_weights/*
+
+# Preprocessing build artifacts
+preprocessing/*/work/
+preprocessing/*/wer_cache/
+preprocessing/*/removed/
+preprocessing/cv/.env
+preprocessing/common_voice/.env
+
+# Large tokenizer artifacts (reproduce via tokenizer/ scripts)
+tokenizer/*.json
+tokenizer/*.model
+
+# Training outputs (checkpoints live on server, not in repo)
+/experiments/*
+!/experiments/
+
+# macOS metadata
+.DS_Store

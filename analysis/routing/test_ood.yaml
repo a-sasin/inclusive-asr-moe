@@ -1,0 +1,14 @@
+  # - corpus: yodas
+  #   hours: 1449.0431695285372
+  #   language: en
+  #   manifest_filepath: /data/granary-pz//granary/version_1_0/manifests/manifests_all_pnc/ASR_updated/YODAS2/en/0_by_whisper/sharded_manifests_updated/manifest__OP_0..529_CL_.json
+  #   tarred_audio_filepaths: /data/granary-pz//yodas2/en/0_by_whisper/audio__OP_0..529_CL_.tar
+  #   type: nemo_tarred
+
+
+  - corpus: yodas
+    hours: 1449.0431695285372
+    language: en
+    manifest_filepath: /data/granary-pz/granary/version_1_0/manifests/manifests_all_pnc/ASR_updated/YODAS2/en/0_by_whisper/sharded_manifests_updated/manifest_53.json
+    tarred_audio_filepaths: /data/granary-pz/yodas2/en/0_by_whisper/audio__OP_0..529_CL_.tar
+    type: nemo_tarred

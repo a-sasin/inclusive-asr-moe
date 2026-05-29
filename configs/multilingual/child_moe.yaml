@@ -1,0 +1,197 @@
+name: "MoE-FastConformer-CTC-BPE"
+
+init_from_nemo_model: null
+
+model:
+  sample_rate: 16000
+  log_prediction: true
+  ctc_reduction: 'mean_volume'
+  skip_nan_grad: false
+
+  train_ds:
+    input_cfg: /lp-dev/amelia/inclusive-asr-moe/data/multilingual/train_child.yaml
+    skip_missing_manifest_entries: true
+    num_workers: 4
+    shuffle: true
+    normalize_text: true
+    use_lhotse: true
+    force_iterable_dataset: true
+
+    min_duration: 1.0
+    max_duration: 30.0
+
+    num_buckets: 10
+    use_distributed_sampler: false
+
+    bucket_duration_bins: [1.0,3.0,5.0,7.0,9.0,11.0,13.0,15.0,20.0,25.0]
+    bucket_batch_size:    [576,432,288,216,180,144,126,108,72,54]
+    use_bucketing: true
+
+  validation_ds:
+    input_cfg: /lp-dev/amelia/inclusive-asr-moe/data/multilingual/val_child.yaml
+    # skip_missing_manifest_entries: true
+    # use_lhotse: true
+
+    # batch_size: 16
+    # min_duration: 1.0
+    # max_duration: 30.0
+
+    # shuffle: false
+    # num_workers: 4
+    # normalize_text: true
+    skip_missing_manifest_entries: true
+    num_workers: 4
+    shuffle: true
+    normalize_text: true
+    use_lhotse: true
+    force_iterable_dataset: true
+
+    min_duration: 1.0
+    max_duration: 30.0
+
+    num_buckets: 10
+    use_distributed_sampler: false
+
+    bucket_duration_bins: [1.0,3.0,5.0,7.0,9.0,11.0,13.0,15.0,20.0,25.0]
+    bucket_batch_size:    [576,432,288,216,180,144,126,108,72,54]
+    use_bucketing: true
+
+  test_ds:
+    manifest_filepath: /data/librispeech/test_clean.json
+    sample_rate: 16000
+    batch_size: 8
+    shuffle: false
+    num_workers: 4
+    use_lhotse: false
+    normalize_text: true
+
+
+  tokenizer:
+    dir: /lp-dev/amelia/inclusive-asr-moe/tokenizers/granary_multilingual_bpe_16384/tokenizer_spe_bpe_v16384
+    type: bpe
+
+  preprocessor:
+    _target_: nemo.collections.asr.modules.AudioToMelSpectrogramPreprocessor
+    sample_rate: ${model.sample_rate}
+    normalize: "per_feature"
+    window_size: 0.025
+    window_stride: 0.01
+    window: "hann"
+    features: 80
+    n_fft: 512
+    log: true
+    frame_splicing: 1
+    dither: 0.00001
+    pad_to: 0
+    pad_value: 0.0
+
+  spec_augment:
+    _target_: nemo.collections.asr.modules.SpectrogramAugmentation
+    freq_masks: 2
+    time_masks: 10
+    freq_width: 27
+    time_width: 0.05
+
+  encoder:
+    _target_: nemo.collections.asr.modules.ConformerMoEEncoder
+    feat_in: ${model.preprocessor.features}
+    feat_out: -1
+    n_layers: 17
+    d_model: 512
+    num_experts: 8
+    top_k: 2
+    router_noise: 0.0
+    load_balance_loss_weight: 0.0
+    use_shared_router: true
+    sync_max_audio_length: false
+    subsampling: dw_striding
+    subsampling_factor: 8
+    subsampling_conv_channels: 256
+    causal_downsampling: false
+    ff_expansion_factor: 4
+    self_attention_model: rel_pos
+    n_heads: 8
+    att_context_size: [-1, -1]
+    att_context_style: regular
+    xscaling: true
+    untie_biases: true
+    pos_emb_max_len: 5000
+    use_pytorch_sdpa: false
+    use_pytorch_sdpa_backends: []
+    conv_kernel_size: 9
+    conv_norm_type: 'batch_norm'
+    conv_context_size: null
+    dropout: 0.1
+    dropout_pre_encoder: 0.1
+    dropout_emb: 0.0
+    dropout_att: 0.1
+    stochastic_depth_drop_prob: 0.0
+    stochastic_depth_mode: linear
+    stochastic_depth_start_layer: 1
+
+  decoder:
+    _target_: nemo.collections.asr.modules.ConvASRDecoder
+    feat_in: null
+    num_classes: -1
+    vocabulary: []
+
+  interctc:
+    loss_weights: []
+    apply_at_layers: []
+
+  optim:
+    name: adamw
+    lr: 1e-3
+    betas: [0.9, 0.98]
+    weight_decay: 1e-3
+    sched:
+      name: CosineAnnealing
+      warmup_steps: 15000
+      warmup_ratio: null
+      min_lr: 1e-4
+
+trainer:
+  devices: -1
+  num_nodes: 1
+  max_epochs: -1
+  max_steps: 100000
+  val_check_interval: 5000
+  limit_train_batches: 5000
+  limit_val_batches: 100
+  accelerator: auto
+  use_distributed_sampler: false
+  strategy:
+    _target_: lightning.pytorch.strategies.DDPStrategy
+    gradient_as_bucket_view: true
+  accumulate_grad_batches: 1
+  gradient_clip_val: 1.0
+  precision: bf16
+  log_every_n_steps: 10
+  enable_progress_bar: True
+  num_sanity_val_steps: 0
+  check_val_every_n_epoch: null
+  sync_batchnorm: true
+  enable_checkpointing: False
+  logger: false
+  benchmark: false
+
+exp_manager:
+  exp_dir: null
+  name: ${name}
+  create_tensorboard_logger: true
+  create_checkpoint_callback: true
+  checkpoint_callback_params:
+    monitor: "val_wer"
+    mode: "min"
+    save_top_k: 1
+    always_save_nemo: True
+  resume_from_checkpoint: null
+  resume_if_exists: false
+  resume_ignore_no_checkpoint: false
+  create_wandb_logger: true
+  wandb_logger_kwargs:
+    project: fastconformer-asr
+    name: ${name}
+    entity: null
+    save_dir: ./wandb_logs
+    log_model: false
