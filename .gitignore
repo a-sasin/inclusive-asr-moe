@@ -205,3 +205,19 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+# Results 
+experiments/
+analysis/routing/outputs/
+inclusive-asr-moe_old/
+analysis/routing/routing_outputs_en_analysis/
+analysis/routing/routing_outputs_en/
+analysis/routing/routing_outputs_multilingual_analysis/
+analysis/routing/routing_outputs_multilingual
+analysis/wer_analysis/analysis_outputs/
+analysis/wer_analysis/analysis_outputs_de/
+
+
+
+*.nemo
