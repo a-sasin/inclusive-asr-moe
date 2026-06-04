@@ -15,7 +15,7 @@ PYTHON=/home/nvidia/miniconda3/envs/nemo_asr/bin/python3
 
 PROJECT_ROOT=/lp-dev/amelia
 NEMO_DIR=${PROJECT_ROOT}/NeMo
-CONFIG_PATH=${PROJECT_ROOT}/inclusive-asr-moe/configs/NEW/english_child
+CONFIG_PATH=${PROJECT_ROOT}/inclusive-asr-moe/configs/english_child
 CONFIG_NAME=moe-fast-conformer_ctc_bpe.yaml
 TOKENIZER_DIR=${PROJECT_ROOT}/inclusive-asr-moe/tokenizers/granary_en_bpe_4096/tokenizer_spe_bpe_v4096
 

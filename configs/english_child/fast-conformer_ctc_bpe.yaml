@@ -5,7 +5,7 @@ init_from_nemo_model: null
 model:
   sample_rate: 16000
   log_prediction: true
-  ctc_reduction: 'mean_volume' #this was different for Conformer 
+  ctc_reduction: 'mean_volume'
   skip_nan_grad: false
   train_ds:
     input_cfg: /lp-dev/amelia/inclusive-asr-moe/data/english/finetune_myst_train.yaml

@@ -5,7 +5,7 @@ init_from_nemo_model: null
 model:
   sample_rate: 16000
   log_prediction: true
-  ctc_reduction: 'mean_volume' #this was different for Conformer 
+  ctc_reduction: 'mean_volume'
   skip_nan_grad: false
   train_ds:
     input_cfg: /lp-dev/amelia/inclusive-asr-moe/data/multilingual/train_child.yaml
@@ -28,32 +28,13 @@ model:
 
   validation_ds:
     input_cfg: /lp-dev/amelia/inclusive-asr-moe/data/multilingual/val_child.yaml
-    # skip_missing_manifest_entries: true
-    # use_lhotse: true
-
-    # batch_size: 16
-    # min_duration: 1.0
-    # max_duration: 30.0
-
-    # shuffle: false
-    # num_workers: 4
-    # normalize_text: true
     skip_missing_manifest_entries: true
-    num_workers: 4
-    shuffle: true
-    normalize_text: true
     use_lhotse: true
-    force_iterable_dataset: true
-
+    num_workers: 4
+    shuffle: false
+    normalize_text: true
     min_duration: 1.0
     max_duration: 30.0
-
-    num_buckets: 10
-    use_distributed_sampler: false
-
-    bucket_duration_bins: [1.0,3.0,5.0,7.0,9.0,11.0,13.0,15.0,20.0,25.0]
-    bucket_batch_size:    [576,432,288,216,180,144,126,108,72,54]
-    use_bucketing: true
 
   test_ds:
     manifest_filepath: /data/librispeech/test_clean.json

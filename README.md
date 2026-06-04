@@ -30,30 +30,30 @@ Both the dense baseline and the MoE variant share the same FastConformer-CTC ske
 
 ```
 inclusive-asr-moe/
-├── configs/            Model configs (Hydra/NeMo YAML)
-│   ├── english/        English track: adult_dense, adult_moe, child_dense, child_moe, child_moe_lb_on
-│   ├── multilingual/   Multilingual track: same set of variants
-│   └── optimization/   OOMptimizer configs for bucket size tuning
-├── training/           Training shell scripts
-│   ├── english/        stage2_adult_*.sh  →  stage3_child_*.sh
-│   └── multilingual/   stage1_adult_*.sh  →  stage3_child_*.sh
-├── evaluation/         Evaluation Python scripts + run_all_evaluations.sh
-├── preprocessing/      Per-corpus data preparation scripts
-│   ├── myst/           MyST English child speech
-│   ├── common_voice/   CommonVoice (NL, DE, PL)
-│   ├── jasmin/         JASMIN Dutch child speech
-│   ├── kidstalc/       KidsTalc German child speech
-│   └── pavsig/         PAVSig Polish pathological child speech
+├── configs/               Model configs (Hydra/NeMo YAML)
+│   ├── english/           Adult EN fine-tuning (LibriSpeech)
+│   ├── english_child/     Child EN fine-tuning (MyST) — dense + moe + moe_lb_on
+│   ├── multilingual/      Adult multilingual fine-tuning (CV25 + LibriSpeech)
+│   ├── multilingual_child/ Child multilingual fine-tuning — same variants
+│   └── optimization/      OOMptimizer configs for bucket size tuning
+├── train/                 Training shell scripts
+│   ├── english/           Adult EN: train_fast-conformer.sh, train_fastconformer_moe.sh
+│   ├── english_child/     Child EN: dense + moe + moe_lb_on variants
+│   ├── multilingual/      Adult ML: dense + moe
+│   ├── multilingual_child/ Child ML: dense + moe + moe_lb_on variants
+│   └── optimization/      bucket_optimization.sh (OOMptimizer runs)
+├── evaluation/            Evaluation Python scripts
+│   ├── evaluate_english_experiment.py
+│   └── evaluate_multilingual_experiment.py
 ├── analysis/
-│   ├── routing/        Expert routing extraction + JSD / age-specificity analysis
-│   └── corpus/         Corpus statistics scripts
-├── weights_prep/       Checkpoint preparation utilities (ff-reset, dense→MoE conversion)
-├── tokenizer/          BPE tokenizer training scripts
-├── data/               Lhotse manifest YAML files (point to server-local audio)
-├── results/            Evaluation JSON outputs (tracked in git)
-│   ├── english/        English track WER results
-│   └── multilingual/   Multilingual track WER results
-└── archive/            Legacy training scripts (superseded, kept for reference)
+│   ├── routing/           Expert routing extraction + JSD / age-specificity analysis
+│   └── wer_analysis/      Per-language WER breakdown notebooks (DE, PL)
+├── tokenizers/            BPE tokenizer training scripts
+│   ├── prepare_granary_tokenizer.sh          (EN, 4096 units)
+│   └── prepare_granary_tokenizer_multilingual.sh  (ML, 16384 units)
+└── data/                  Lhotse manifest YAML files (point to server-local audio)
+    ├── english/           finetune_librispeech*.yaml, finetune_myst*.yaml
+    └── multilingual/      train_cv.yaml, train_child.yaml, val_*.yaml
 ```
 
 ---
@@ -103,61 +103,46 @@ All training scripts read server-local absolute paths. Before running, update th
 
 ## Reproducing the Experiments
 
-### Step 0 — Prepare checkpoints
-
-```bash
-# Dense → ff-reset (reset FF weights before training)
-python weights_prep/prepare_checkpoint.py --mode ff-reset \
-    --model-path baseline_weights/stt_en_fastconformer_ctc_large.nemo \
-    --output-path baseline_weights/stt_en_fastconformer_ctc_large_ff_reset.nemo
-
-# Dense → MoE init (English, 4 experts)
-python weights_prep/prepare_checkpoint.py --mode to-moe \
-    --model-path baseline_weights/stt_en_fastconformer_ctc_large_ff_reset.nemo \
-    --moe-config configs/english/adult_moe.yaml \
-    --output-path baseline_weights/stt_en_fastconformer_ctc_large_to_moe_init.nemo
-
-# Dense → MoE init (Multilingual, 8 experts)
-python weights_prep/prepare_checkpoint_multilingual.py --mode to-moe \
-    --model-path baseline_weights/stt_en_fastconformer_ctc_large_ff_reset.nemo \
-    --moe-config configs/multilingual/adult_moe.yaml \
-    --output-path baseline_weights/stt_en_fastconformer_ctc_large_to_moe_init_ml.nemo
-```
-
 ### Step 1 — Train BPE tokenizers
 
 ```bash
-bash tokenizer/prepare_english_tokenizer.sh       # 4096-unit EN tokenizer
-bash tokenizer/prepare_multilingual_tokenizer.sh  # 16384-unit ML tokenizer
+bash tokenizers/prepare_granary_tokenizer.sh               # EN: 4096-unit
+bash tokenizers/prepare_granary_tokenizer_multilingual.sh  # ML: 16384-unit
 ```
 
 ### Step 2 — Train models
 
-**English track (Stage 2 → Stage 3):**
+`CUDA_VISIBLE_DEVICES` must be set explicitly. `PRETRAINED_NEMO` defaults are hardcoded in each script and can be overridden.
+
+**English track (adult → child):**
 
 ```bash
 # Adult LibriSpeech fine-tuning
-CUDA_VISIBLE_DEVICES=0,1,2,3 bash training/english/stage2_adult_dense.sh
-CUDA_VISIBLE_DEVICES=0,1,2,3 bash training/english/stage2_adult_moe.sh
+CUDA_VISIBLE_DEVICES=0,1,2,3 bash train/english/train_fast-conformer.sh
+CUDA_VISIBLE_DEVICES=0,1,2,3 bash train/english/train_fastconformer_moe.sh
 
-# Child fine-tuning (set PRETRAINED_NEMO to Stage 2 checkpoint)
-PRETRAINED_NEMO=/path/to/stage2_dense.nemo \
-    CUDA_VISIBLE_DEVICES=0,1,2,3 bash training/english/stage3_child_dense.sh
+# Child fine-tuning
+PRETRAINED_NEMO=/path/to/adult_dense.nemo \
+    CUDA_VISIBLE_DEVICES=0,1,2,3 bash train/english_child/train_fast-conformer.sh
 
-PRETRAINED_NEMO=/path/to/stage2_moe.nemo \
-    CUDA_VISIBLE_DEVICES=0,1,2,3 bash training/english/stage3_child_moe.sh
+PRETRAINED_NEMO=/path/to/adult_moe.nemo \
+    CUDA_VISIBLE_DEVICES=0,1,2,3 bash train/english_child/train_fastconformer_moe.sh
+
+PRETRAINED_NEMO=/path/to/adult_moe.nemo \
+    CUDA_VISIBLE_DEVICES=0,1,2,3 bash train/english_child/train_fastconformer_moe_load_balancing_on.sh
 ```
 
-**Multilingual track (Stage 1 → Stage 3):**
+**Multilingual track (adult → child):**
 
 ```bash
-# Adult CommonVoice + LibriSpeech
-CUDA_VISIBLE_DEVICES=0,1,2,3 bash training/multilingual/stage1_adult_dense.sh
-CUDA_VISIBLE_DEVICES=0,1,2,3 bash training/multilingual/stage1_adult_moe.sh
+CUDA_VISIBLE_DEVICES=0,1,2,3 bash train/multilingual/train_fast-conformer.sh
+CUDA_VISIBLE_DEVICES=0,1,2,3 bash train/multilingual/train_fastconformer_moe.sh
 
-# Multilingual child fine-tuning
-PRETRAINED_NEMO=/path/to/stage1_dense.nemo \
-    CUDA_VISIBLE_DEVICES=0,1,2,3 bash training/multilingual/stage3_child_dense.sh
+PRETRAINED_NEMO=/path/to/adult_dense_ml.nemo \
+    CUDA_VISIBLE_DEVICES=0,1,2,3 bash train/multilingual_child/train_fast-conformer.sh
+
+PRETRAINED_NEMO=/path/to/adult_moe_ml.nemo \
+    CUDA_VISIBLE_DEVICES=0,1,2,3 bash train/multilingual_child/train_fastconformer_moe.sh
 ```
 
 Checkpoints are written to `experiments/NEW/<track>/<model>/<name>/checkpoints/`.
@@ -165,21 +150,17 @@ Checkpoints are written to `experiments/NEW/<track>/<model>/<name>/checkpoints/`
 ### Step 3 — Evaluate
 
 ```bash
-# Single model
-python evaluation/evaluate_multilingual.py \
+# English models (adult + child WER, Absolute Bias)
+python evaluation/evaluate_english_experiment.py \
+    --dense_pretrained /path/to/dense_ls.nemo \
+    --dense_finetuned  /path/to/dense_myst.nemo \
+    --moe_pretrained   /path/to/moe_ls.nemo \
+    --moe_finetuned_lb_off /path/to/moe_myst_lb_off.nemo
+
+# Multilingual + child speech (per-language WER)
+python evaluation/evaluate_multilingual_experiment.py \
     --checkpoint /path/to/model.nemo \
     --output results/multilingual/my_model.json
-
-# All thesis models (~6–8 h on 1× A100)
-bash evaluation/run_all_evaluations.sh
-```
-
-### Step 4 — Compile results table
-
-```bash
-python evaluation/compile_results.py \
-    --results_dir results/multilingual \
-    --output results/multilingual/wer_table.txt
 ```
 
 ---

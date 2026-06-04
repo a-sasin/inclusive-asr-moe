@@ -1,11 +1,11 @@
 """
-English Baseline & Fine-Tuning Experiment — Evaluation + Relative Bias
+English Baseline & Fine-Tuning Experiment — Evaluation + Absolute Bias
 =======================================================================
 
 Evaluates up to 4 model configurations on adult (LibriSpeech) and child
-(MyST) test sets, then computes per-model WER and **Relative Bias**.
+(MyST) test sets, then computes per-model WER and **Absolute Bias**.
 
-    Relative Bias = (WER_child − WER_adult) / WER_adult
+    Absolute Bias = WER_child − WER_adult  (percentage points)
 
 A positive value means the model performs worse on children; the goal of
 child fine-tuning is to shrink this gap.
@@ -79,7 +79,7 @@ class ModelResult:
     checkpoint: str
     adult: TestResult = field(default_factory=lambda: TestResult("adult"))
     child: TestResult = field(default_factory=lambda: TestResult("child"))
-    relative_bias: float = 0.0
+    absolute_bias: float = 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -252,13 +252,11 @@ def evaluate_single_model(
     else:
         logging.warning(f"  Child manifest not found: {child_manifest}")
 
-    # ---- Relative Bias ----
-    if result.adult.wer > 0 and result.child.wer < float("inf"):
-        result.relative_bias = (
-            (result.child.wer - result.adult.wer) / result.adult.wer
-        )
+    # ---- Absolute Bias ----
+    if result.adult.num_words > 0 and result.child.wer < float("inf"):
+        result.absolute_bias = result.child.wer - result.adult.wer
     else:
-        result.relative_bias = float("nan")
+        result.absolute_bias = float("nan")
 
     # Free GPU memory
     del model
@@ -280,38 +278,38 @@ def print_results_table(results: list[ModelResult]):
 
     # Header
     print(
-        f"  {'Model':<35} {'LibriS WER':>11} {'Child WER':>10} "
-        f"{'Rel. Bias':>10} {'Bias Δ':>10}"
+        f"  {'Model':<35} {'Adult WER':>10} {'Child WER':>10} "
+        f"{'Abs. Bias':>10} {'Bias Δ':>10}"
     )
-    print(f"  {'-'*35} {'-'*11} {'-'*10} {'-'*10} {'-'*10}")
+    print(f"  {'-'*35} {'-'*10} {'-'*10} {'-'*10} {'-'*10}")
 
     # Find pretrained biases for delta computation
     pretrained_bias = {}
     for r in results:
         if "pretrained" in r.name.lower():
             arch = "dense" if "dense" in r.name.lower() else "moe"
-            pretrained_bias[arch] = r.relative_bias
+            pretrained_bias[arch] = r.absolute_bias
 
+    import math
     for r in results:
         adult_str = f"{r.adult.wer * 100:.2f}%" if r.adult.num_words > 0 else "—"
         child_str = f"{r.child.wer * 100:.2f}%" if r.child.num_words > 0 else "—"
 
-        import math
-        if math.isnan(r.relative_bias):
+        if math.isnan(r.absolute_bias):
             bias_str = "—"
         else:
-            bias_str = f"{r.relative_bias * 100:+.1f}%"
+            bias_str = f"{r.absolute_bias * 100:+.2f} pp"
 
         # Delta = how much bias changed after fine-tuning
         delta_str = ""
         if "finetuned" in r.name.lower():
             arch = "dense" if "dense" in r.name.lower() else "moe"
             if arch in pretrained_bias and not math.isnan(pretrained_bias[arch]):
-                delta = r.relative_bias - pretrained_bias[arch]
-                delta_str = f"{delta * 100:+.1f}pp"
+                delta = r.absolute_bias - pretrained_bias[arch]
+                delta_str = f"{delta * 100:+.2f} pp"
 
         print(
-            f"  {r.name:<35} {adult_str:>11} {child_str:>10} "
+            f"  {r.name:<35} {adult_str:>10} {child_str:>10} "
             f"{bias_str:>10} {delta_str:>10}"
         )
 
@@ -319,9 +317,9 @@ def print_results_table(results: list[ModelResult]):
 
     # Interpretation
     print("\n  Interpretation:")
-    print("    • Relative Bias = (Child_WER − Adult_WER) / Adult_WER")
+    print("    • Absolute Bias = Child WER − Adult WER (pp)")
     print("    • Positive bias → model is worse on children")
-    print("    • Bias Δ (pp) → change in relative bias after fine-tuning")
+    print("    • Bias Δ (pp) → change in absolute bias after fine-tuning")
     print("    • Negative Δ → fine-tuning reduced the adult–child gap")
     print(f"\n{SEP}\n")
 
@@ -331,7 +329,7 @@ def print_results_table(results: list[ModelResult]):
 # ---------------------------------------------------------------------------
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        description="Evaluate English ASR models: adult vs child WER + relative bias",
+        description="Evaluate English ASR models: adult vs child WER + absolute bias",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
@@ -437,7 +435,7 @@ def main():
     # Save to JSON
     if args.output and all_results:
         out = {
-            "experiment": "English Baseline & Fine-Tuning",
+            "experiment": "English Baseline & Fine-Tuning — Absolute Bias",
             "adult_test": args.adult_test,
             "child_test": args.child_test,
             "models": [asdict(r) for r in all_results],

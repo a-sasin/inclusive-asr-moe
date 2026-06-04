@@ -5,7 +5,7 @@ init_from_nemo_model: null
 model:
   sample_rate: 16000
   log_prediction: true
-  ctc_reduction: 'mean_volume' #this was different for Conformer 
+  ctc_reduction: 'mean_volume'
   skip_nan_grad: false
 
   train_ds:
@@ -18,7 +18,7 @@ model:
     force_iterable_dataset: true
     min_duration: 0.5
     max_duration: 40.0
-    num_buckets: 30
+    num_buckets: 10
     use_distributed_sampler: false
     bucket_duration_bins: [1.0,3.0,5.0,7.0,9.0,11.0,13.0,15.0,20.0,25.0]
     bucket_batch_size:    [576,432,288,216,180,144,126,108,72,54]
