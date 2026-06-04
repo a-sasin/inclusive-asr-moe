@@ -62,10 +62,10 @@ inclusive-asr-moe/
 
 ### 1. NeMo fork
 
-`ConformerMoEEncoder` is not in public NeMo. Clone and install the local fork:
+`ConformerMoEEncoder` is not in public NeMo. The implementation lives at **https://github.com/a-sasin/NeMo**. Clone and install:
 
 ```bash
-git clone <your-nemo-fork-url> /path/to/NeMo
+git clone https://github.com/a-sasin/NeMo /path/to/NeMo
 conda env create -f environment.yml
 conda activate nemo_asr
 pip install -e /path/to/NeMo
@@ -188,26 +188,54 @@ python evaluation/compile_results.py \
 
 ### English Track
 
-| Model | Adult WER (LS test-clean) | Child WER (MyST test) | Relative Bias |
+Adult = LibriSpeech test-clean; Child = MyST test partition. Abs. Bias = Child WER − Adult WER (pp).
+
+| Model | Adult WER | Child WER | Abs. Bias |
 |---|---|---|---|
-| Dense — LibriSpeech only | 2.98 % | 26.99 % | 8.04 |
-| Dense — child fine-tuned | 2.94 % | 14.65 % | 3.98 |
-| MoE — LibriSpeech only | 2.56 % | 24.16 % | 8.43 |
-| MoE — child fine-tuned (LB on) | 2.62 % | 14.08 % | 4.37 |
-| **MoE — child fine-tuned (LB off)** | **2.66 %** | **14.05 %** | **4.27** |
+| Dense — LibriSpeech only | 2.98 % | 26.99 % | +24.01 pp |
+| MoE — LibriSpeech only | 2.56 % | 24.16 % | +21.60 pp |
+| Dense — child fine-tuned | 2.94 % | 14.65 % | +11.71 pp |
+| MoE — child fine-tuned (LB on) | 2.62 % | 14.08 % | +11.46 pp |
+| **MoE — child fine-tuned (LB off)** | **2.66 %** | **14.05 %** | **+11.39 pp** |
 
-Relative bias = (child WER − adult WER) / adult WER.
+### Multilingual Track
 
-### Multilingual Track (adult-trained models)
+Adult test sets: CommonVoice 25.0 (NL/DE/PL), LibriSpeech test-clean (EN). Child test sets: JASMIN (NL), KidsTALC (DE), PAVSig† (PL), MyST (EN). Abs. Bias = Child WER − Adult WER (pp).
 
-| Model | EN | DE | NL | PL |
+**Adult fine-tuning only**
+
+| Model | Lang | Adult WER | Child WER | Abs. Bias |
 |---|---|---|---|---|
-| Dense | 3.14 % | 6.64 % | 2.71 % | 7.52 % |
-| MoE | 3.49 % | 6.12 % | 2.78 % | 7.22 % |
+| Dense | EN | 3.14 % | 26.67 % | +23.53 pp |
+| | NL | 2.71 % | 81.38 % | +78.67 pp |
+| | DE | 6.64 % | 67.72 % | +61.08 pp |
+| | PL | 7.52 % | 118.32 %† | +110.80 pp |
+| MoE | EN | 3.49 % | 29.08 % | +25.60 pp |
+| | NL | 2.78 % | 89.59 % | +86.81 pp |
+| | DE | 6.12 % | 69.50 % | +63.38 pp |
+| | PL | 7.22 % | 128.77 %† | +121.55 pp |
 
-Full per-language WER and adult–child bias tables, including child-fine-tuned multilingual models, are in `results/multilingual/`.
+**After child fine-tuning**
 
-> **PAVSig note:** PAVSig results are not directly comparable to other child corpora — the corpus specifically targets sigmatism (a phonological disorder), so elevated WER is expected by design.
+| Model | Lang | Adult WER | Child WER | Abs. Bias |
+|---|---|---|---|---|
+| Dense | EN | 3.54 % | 16.05 % | +12.51 pp |
+| | NL | 3.51 % | 22.59 % | +19.08 pp |
+| | DE | 8.00 % | 37.99 % | +29.99 pp |
+| | PL | 8.36 % | 99.66 %† | +91.30 pp |
+| **MoE (LB off)** | **EN** | **3.37 %** | **14.50 %** | **+11.13 pp** |
+| | **NL** | **2.72 %** | **20.54 %** | **+17.82 pp** |
+| | DE | 7.00 % | 48.86 % | +41.87 pp |
+| | **PL** | **7.14 %** | **96.06 %†** | **+88.92 pp** |
+| MoE (LB on) | EN | 3.44 % | 14.50 % | +11.06 pp |
+| | NL | 2.72 % | 20.91 % | +18.19 pp |
+| | DE | 7.10 % | 49.34 % | +42.24 pp |
+| | PL | 7.20 % | 101.03 %† | +93.83 pp |
+
+> † PAVSig contains children with sigmatism (a phonological disorder) and is not directly comparable to the other child corpora.
+> German child results: MoE underperforms dense on child WER due to the small size and domain mismatch of KidsTALC (38 speakers, 8.8 h).
+
+Full per-language WER and routing analysis outputs are in `results/multilingual/`.
 
 ---
 
