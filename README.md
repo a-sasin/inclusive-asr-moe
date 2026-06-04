@@ -164,6 +164,31 @@ python evaluation/evaluate_multilingual_experiment.py \
 ```
 
 ---
+## Setup
+
+### Prerequisites
+- [Miniconda or Anaconda](https://docs.conda.io/en/latest/miniconda.html)
+- NVIDIA GPU with CUDA 12.x
+
+### Installation
+
+1. Clone this repository:
+```bash
+   git clone https://github.com/a-sasin/inclusive-asr-moe
+   cd inclusive-asr-moe
+```
+
+2. Run the setup script:
+```bash
+   bash setup.sh
+```
+   This will clone the NeMo fork and create the conda environment.
+
+3. Activate the environment:
+```bash
+   conda activate nemo_moe
+```
+
 
 ## Key Results
 
