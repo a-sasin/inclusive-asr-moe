@@ -10,9 +10,9 @@ set -euo pipefail
 # ENVIRONMENT
 ############################################
 source /home/nvidia/miniconda3/etc/profile.d/conda.sh
-conda activate nemo_asr
+conda activate nemo_moe
 
-PYTHON=/home/nvidia/miniconda3/envs/nemo_asr/bin/python3
+PYTHON=/home/nvidia/miniconda3/envs/nemo_moe/bin/python3
 
 PROJECT_ROOT=/lp-dev/amelia
 NEMO_DIR=${PROJECT_ROOT}/NeMo
@@ -21,7 +21,7 @@ CONFIG_NAME=moe-fast-conformer_ctc_bpe.yaml
 TOKENIZER_DIR=${PROJECT_ROOT}/inclusive-asr-moe/tokenizers/granary_multilingual_bpe_16384/tokenizer_spe_bpe_v16384
 
 
-PRETRAINED_NEMO=${PRETRAINED_NEMO:-"/lp-dev/amelia/inclusive-asr-moe/experiments/NEW/multilingual/moe/moe_fastconformer_multilingual_2026-04-22_13-48-13/2026-04-22_13-48-26/checkpoints/moe_fastconformer_multilingual_2026-04-22_13-48-13.nemo"}
+PRETRAINED_NEMO=${PRETRAINED_NEMO:-"/lp-dev/amelia/inclusive-asr-moe/final_weights/multilingual_adult_moe.nemo"}
 
 # User controls GPU routing from shell, e.g.:
 # CUDA_VISIBLE_DEVICES=0,1,2,3 bash scripts/train/NEW/train_fastconformer_moe.sh

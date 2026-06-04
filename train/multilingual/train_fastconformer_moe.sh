@@ -10,9 +10,9 @@ set -euo pipefail
 # ENVIRONMENT
 ############################################
 source /home/nvidia/miniconda3/etc/profile.d/conda.sh
-conda activate nemo_asr
+conda activate nemo_moe
 
-PYTHON=/home/nvidia/miniconda3/envs/nemo_asr/bin/python3
+PYTHON=/home/nvidia/miniconda3/envs/nemo_moe/bin/python3
 
 PROJECT_ROOT=/lp-dev/amelia
 NEMO_DIR=${PROJECT_ROOT}/NeMo
