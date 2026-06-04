@@ -1,3 +1,4 @@
+#!/bin/bash
 set -euo pipefail
 
 # ============================================================================
@@ -30,7 +31,8 @@ if [[ -z "${CUDA_VISIBLE_DEVICES:-}" ]]; then
     exit 1
 fi
 
-NUM_GPUS=$(echo "${CUDA_VISIBLE_DEVICES}" | tr ',' '\n' | wc -l | tr -d ' ')
+NUM_GPUS=$(echo "${CUDA_VISIBLE_DEVICES}" | tr ',' '
+' | wc -l | tr -d ' ')
 if [[ "${NUM_GPUS}" -lt 1 ]]; then
     echo "ERROR: Could not infer GPU count from CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}"
     exit 1

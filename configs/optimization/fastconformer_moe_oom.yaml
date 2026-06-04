@@ -3,7 +3,7 @@ name: "Conformer-CTC-BPE-OOM"
 model:
   sample_rate: 16000
   log_prediction: true
-  ctc_reduction: 'mean_volume' #this was different for Conformer 
+  ctc_reduction: 'mean_volume'
   skip_nan_grad: false
 
   ########################################
@@ -55,7 +55,7 @@ model:
     _target_: nemo.collections.asr.modules.ConformerMoEEncoder
     feat_in: ${model.preprocessor.features}
     feat_out: -1
-    n_layers: 18
+    n_layers: 17
     d_model: 512
     num_experts: 8
     top_k: 2
