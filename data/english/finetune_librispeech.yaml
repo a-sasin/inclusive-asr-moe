@@ -1,0 +1,10 @@
+- type: nemo
+  manifest_filepath: /data/librispeech_nemo/train_clean_360.json
+
+- type: nemo
+  manifest_filepath: /data/librispeech_nemo/train_clean_100.json 
+
+- type: nemo
+  manifest_filepath: /data/librispeech_nemo/train_other_500.json
+
+

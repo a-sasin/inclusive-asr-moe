@@ -1,0 +1,37 @@
+
+- type: nemo
+  manifest_filepath: /lp-dev/amelia/data/myst/filtered_data/train.json
+  weight: 0.125
+
+- type: nemo
+  manifest_filepath: /lp-dev/amelia/data/jasmin/child/train.json
+  weight: 0.125
+
+- type: nemo
+  manifest_filepath: /lp-dev/amelia/data/kidstalc/cleaned/train.json
+  weight: 0.125
+
+- type: nemo
+  manifest_filepath: /lp-dev/amelia/data/pavsig/training/new_train_manifest.mono.jsonl
+  weight: 0.125
+
+
+- type: nemo
+  manifest_filepath: /data/cv/nemo/pl/train.json
+  weight: 0.125     # PL → 12.5%
+
+- type: nemo
+  manifest_filepath: /data/cv/nemo/nl/train.json
+  weight: 0.125     # NL → 12.5%
+
+- type: nemo
+  manifest_filepath: /data/cv/nemo/de/train.json
+  weight: 0.125     # DE → 12.5%
+
+- type: nemo
+  manifest_filepath: /data/librispeech_nemo/train_clean_360.json
+  weight: 0.09785   # EN → 9.785% (78.28% of EN budget)
+
+- type: nemo
+  manifest_filepath: /data/librispeech_nemo/train_clean_100.json
+  weight: 0.02715   # EN → 2.715% (21.72% of EN budget)

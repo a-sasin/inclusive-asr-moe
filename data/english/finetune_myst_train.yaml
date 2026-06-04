@@ -1,0 +1,19 @@
+- type: nemo
+  manifest_filepath: /lp-dev/amelia/data/myst/filtered_data/train.json
+  weight: 0.5
+  # name: "myst_child"
+
+- type: nemo
+  manifest_filepath: /data/librispeech_nemo/train_clean_360.json
+  weight: 0.15
+  # name: "librispeech_clean_360"
+
+- type: nemo
+  manifest_filepath: /data/librispeech_nemo/train_clean_100.json
+  weight: 0.15
+  # name: "librispeech_clean_100"
+
+- type: nemo
+  manifest_filepath: /data/librispeech_nemo/train_other_500.json
+  weight: 0.2
+  # name: "librispeech_other_500"

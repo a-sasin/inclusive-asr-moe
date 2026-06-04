@@ -1,0 +1,15 @@
+- type: nemo
+  manifest_filepath: /lp-dev/amelia/data/myst/filtered_data/val.json
+  weight: 0.4
+
+- type: nemo
+  manifest_filepath: /data/librispeech_nemo/dev_clean.json
+  weight: 0.3
+
+- type: nemo
+  manifest_filepath: /data/librispeech_nemo/dev_other.json
+  weight: 0.3
+
+- type: nemo
+  manifest_filepath: /lp-dev/amelia/data/myst/filtered_data/val.json
+  weight: 0.4

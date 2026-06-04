@@ -1,0 +1,12 @@
+- type: nemo
+  manifest_filepath: /data/cv/nemo/pl/val.json
+
+- type: nemo
+  manifest_filepath: /data/cv/nemo/nl/val.json
+
+- type: nemo
+  manifest_filepath: /data/cv/nemo/de/val.json
+
+- type: nemo
+  manifest_filepath: /lp-dev/amelia/data/myst/filtered_data/val.json
+
