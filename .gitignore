@@ -219,5 +219,9 @@ analysis/wer_analysis/analysis_outputs/
 analysis/wer_analysis/analysis_outputs_de/
 
 
+/stats
+*.txt
+*.vocab
+*.model
 
 *.nemo
