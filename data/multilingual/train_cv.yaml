@@ -1,0 +1,45 @@
+# =============================================================================
+# Multilingual training dataset weights — 25% per language (equal exposure)
+# =============================================================================
+#
+# DATASET HOURS:  PL=125h  NL=88h  DE=1206h  EN=460h (LS360+LS100 combined)
+#
+# WEIGHTING METHOD: equal language probability — each language = 25% of batches
+#   EN is split internally by hours: LS360 gets 78% of EN budget, LS100 22%.
+#   Weights are unnormalized; NeMo/Lhotse normalises internally (sum need not = 1).
+#
+# EFFECTIVE SAMPLING:
+#   PL  25.0% of batches   repeats 3.8x   ← low-resource, repetition expected
+#   NL  25.0% of batches   repeats 5.3x   ← low-resource, repetition expected
+#   DE  25.0% of batches   only 0.39x     ← 736h of German not seen per epoch
+#   EN  25.0% of batches   LS360 1.0x / LS100 1.0x
+#
+# ACCEPTED TRADEOFF: 736h German wasted per epoch in exchange for equal
+#   language exposure. NL/PL repetition is standard in multilingual ASR
+#   (Pratap et al. 2020, Conneau et al. 2020). Monitor val WER per language
+#   for Dutch/Polish overfitting — if seen, increase dropout or reduce weight.
+#
+# THESIS JUSTIFICATION:
+#   "Datasets were sampled with equal language probability (25% per language)
+#    following standard practice for multilingual low-resource ASR."
+# =============================================================================
+
+- type: nemo
+  manifest_filepath: /data/cv/nemo/pl/train.json
+  weight: 0.25     # PL  → 25.0% of batches, repeats 3.8x
+
+- type: nemo
+  manifest_filepath: /data/cv/nemo/nl/train.json
+  weight: 0.25     # NL  → 25.0% of batches, repeats 5.3x
+
+- type: nemo
+  manifest_filepath: /data/cv/nemo/de/train.json
+  weight: 0.25     # DE  → 25.0% of batches, only 0.39x capacity
+
+- type: nemo
+  manifest_filepath: /data/librispeech_nemo/train_clean_360.json
+  weight: 0.1957     # EN  → 19.6% of batches (78% of EN's 25% budget)
+
+- type: nemo
+  manifest_filepath: /data/librispeech_nemo/train_clean_100.json
+  weight: 0.0543     # EN  → 5.4%  of batches (22% of EN's 25% budget)

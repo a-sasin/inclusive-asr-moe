@@ -1,0 +1,15 @@
+- type: nemo
+  manifest_filepath: /lp-dev/amelia/data/myst/filtered_data/val.json
+  weight: 0.25
+
+- type: nemo
+  manifest_filepath: /lp-dev/amelia/data/jasmin/child/val.json
+  weight: 0.25
+
+- type: nemo
+  manifest_filepath: /lp-dev/amelia/data/kidstalc/cleaned/val.json
+  weight: 0.25
+
+- type: nemo
+  manifest_filepath: /lp-dev/amelia/data/pavsig/training/new_val_manifest.mono.jsonl
+  weight: 0.25
